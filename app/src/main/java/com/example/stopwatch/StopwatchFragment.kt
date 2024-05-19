@@ -64,8 +64,10 @@ class StopwatchFragment : Fragment() {
         }
 
         resetButton.setOnClickListener {
+            handler.removeCallbacks(runnable)
             startTime = 0L
             offset = 0L
+            stopwatchText.text = "00:00:00:00"
         }
         super.onViewCreated(view, savedInstanceState)
     }
