@@ -7,7 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 
 // TODO: Rename parameter arguments, choose names that match
@@ -36,9 +36,9 @@ class StopwatchFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val startButton = view.findViewById<Button>(R.id.start_button)
-        val stopButton = view.findViewById<Button>(R.id.stop_button)
-        val resetButton = view.findViewById<Button>(R.id.reset_button)
+        val startButton = view.findViewById<ImageButton>(R.id.start_button)
+        val stopButton = view.findViewById<ImageButton>(R.id.stop_button)
+        val resetButton = view.findViewById<ImageButton>(R.id.reset_button)
         val stopwatchText = view.findViewById<TextView>(R.id.counter)
 
         var startTime = 0L
