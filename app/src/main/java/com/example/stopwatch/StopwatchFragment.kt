@@ -39,7 +39,7 @@ class StopwatchFragment : Fragment() {
         val startButton = view.findViewById<ImageButton>(R.id.start_button)
         val stopButton = view.findViewById<ImageButton>(R.id.stop_button)
         val resetButton = view.findViewById<ImageButton>(R.id.reset_button)
-        val stopwatchText = view.findViewById<TextView>(R.id.counter)
+        val stopwatchText = view.findViewById<TextView>(R.id.timer)
 
         var startTime = 0L
         var offset = 0L

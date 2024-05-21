@@ -1,10 +1,16 @@
 package com.example.stopwatch
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.NumberPicker
+import android.widget.TextView
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -36,6 +42,27 @@ class TimerFragment : Fragment() {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_timer, container, false)
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val startButton = view.findViewById<ImageButton>(R.id.play_button)
+        val pauseButton = view.findViewById<ImageButton>(R.id.pause_button)
+        val minuteInput = view.findViewById<NumberPicker>(R.id.minuteInput)
+        minuteInput.minValue = 0
+        minuteInput.maxValue = 60
+
+        val secondInput = view.findViewById<NumberPicker>(R.id.secondInput)
+        secondInput.minValue = 0 // Changed from 1 to 0 for consistency
+        secondInput.maxValue = 59 // Changed from 60 to 59 for consistency with seconds
+
+        val counter = view.findViewById<TextView>(R.id.timer)
+
+        startButton.setOnClickListener {
+            counter.text = minuteInput.value.toString() + ":" + secondInput.value.toString()
+        }
+    }
+
 
     companion object {
         /**
