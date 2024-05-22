@@ -1,6 +1,9 @@
 package com.example.stopwatch
 
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -11,6 +14,11 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.NumberPicker
 import android.widget.TextView
+import androidx.annotation.RequiresApi
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.concurrent.TimeUnit
+import java.lang.Runnable as Runnable
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -42,7 +50,7 @@ class TimerFragment : Fragment() {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_timer, container, false)
     }
-
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -53,13 +61,39 @@ class TimerFragment : Fragment() {
         minuteInput.maxValue = 60
 
         val secondInput = view.findViewById<NumberPicker>(R.id.secondInput)
-        secondInput.minValue = 0 // Changed from 1 to 0 for consistency
-        secondInput.maxValue = 59 // Changed from 60 to 59 for consistency with seconds
+        secondInput.minValue = 1
+        secondInput.maxValue = 59
 
         val counter = view.findViewById<TextView>(R.id.timer)
 
+        var remainingMili = 0
+        var handler = Handler(Looper.getMainLooper())
+
+        var runnable = object : Runnable {
+            override fun run() {
+                if (remainingMili > 0)
+                {
+                    val rMin = (remainingMili / 60000).toInt()
+                    val rSec = ((remainingMili - (rMin * 60000)) / 1000).toInt()
+                    remainingMili -= 1000
+
+                    counter.text = String.format("%02d", rMin) + ":" + String.format("%02d", rSec)
+                    handler.postDelayed(this, 1000)
+                } else
+                {
+                    counter.text = "00:00"
+                }
+            }
+        }
+
         startButton.setOnClickListener {
-            counter.text = minuteInput.value.toString() + ":" + secondInput.value.toString()
+            val minutes = String.format("%02d", minuteInput.value)
+            val seconds = String.format("%02d", secondInput.value)
+
+            remainingMili = minuteInput.value * 60 * 1000 + secondInput.value * 1000
+            counter.text = "$minutes:$seconds"
+
+            handler.post(runnable)
         }
     }
 
