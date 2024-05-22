@@ -1,5 +1,6 @@
 package com.example.stopwatch
 
+import android.opengl.Visibility
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -12,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.NumberPicker
 import android.widget.TextView
 import androidx.annotation.RequiresApi
@@ -56,6 +58,10 @@ class TimerFragment : Fragment() {
 
         val startButton = view.findViewById<ImageButton>(R.id.play_button)
         val pauseButton = view.findViewById<ImageButton>(R.id.pause_button)
+        val resetButton = view.findViewById<ImageButton>(R.id.reset_button)
+        val counter = view.findViewById<TextView>(R.id.timer)
+        val timePicker = view.findViewById<LinearLayout>(R.id.timePickers)
+
         val minuteInput = view.findViewById<NumberPicker>(R.id.minuteInput)
         minuteInput.minValue = 0
         minuteInput.maxValue = 60
@@ -64,10 +70,26 @@ class TimerFragment : Fragment() {
         secondInput.minValue = 1
         secondInput.maxValue = 59
 
-        val counter = view.findViewById<TextView>(R.id.timer)
 
         var remainingMili = 0
+
         var handler = Handler(Looper.getMainLooper())
+
+        fun getFormattedTime(m: Int, s: Int): String {
+            val min = String.format("%02d", m)
+            val sec = String.format("%02d", s)
+            return "$min:$sec"
+        }
+
+        fun showCountdown() {
+            timePicker.visibility = View.GONE
+            counter.visibility = View.VISIBLE
+        }
+
+        fun showTimeInputs() {
+            counter.visibility = View.GONE
+            timePicker.visibility = View.VISIBLE
+        }
 
         var runnable = object : Runnable {
             override fun run() {
@@ -75,25 +97,37 @@ class TimerFragment : Fragment() {
                 {
                     val rMin = (remainingMili / 60000).toInt()
                     val rSec = ((remainingMili - (rMin * 60000)) / 1000).toInt()
-                    remainingMili -= 1000
 
-                    counter.text = String.format("%02d", rMin) + ":" + String.format("%02d", rSec)
+                    counter.text = getFormattedTime(rMin, rSec)
                     handler.postDelayed(this, 1000)
-                } else
+                    remainingMili -= 1000
+                }
+                else
                 {
-                    counter.text = "00:00"
+                    resetButton.callOnClick()
                 }
             }
         }
 
+        fun resetTimer() {
+            showTimeInputs()
+            handler.removeCallbacks(runnable)
+            remainingMili = 0
+            counter.text = "00:00"
+        }
+
+
         startButton.setOnClickListener {
-            val minutes = String.format("%02d", minuteInput.value)
-            val seconds = String.format("%02d", secondInput.value)
-
+            handler.removeCallbacks(runnable)
             remainingMili = minuteInput.value * 60 * 1000 + secondInput.value * 1000
-            counter.text = "$minutes:$seconds"
-
+            counter.text = getFormattedTime(minuteInput.value, secondInput.value)
             handler.post(runnable)
+
+            showCountdown()
+        }
+
+        resetButton.setOnClickListener {
+            resetTimer()
         }
     }
 
