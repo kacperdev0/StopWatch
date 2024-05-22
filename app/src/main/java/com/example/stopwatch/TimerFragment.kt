@@ -91,16 +91,20 @@ class TimerFragment : Fragment() {
             timePicker.visibility = View.VISIBLE
         }
 
+        var isPaused = false
+
         var runnable = object : Runnable {
             override fun run() {
                 if (remainingMili > 0)
                 {
-                    val rMin = (remainingMili / 60000).toInt()
-                    val rSec = ((remainingMili - (rMin * 60000)) / 1000).toInt()
+                    if (!isPaused) {
+                        val rMin = (remainingMili / 60000).toInt()
+                        val rSec = ((remainingMili - (rMin * 60000)) / 1000).toInt()
 
-                    counter.text = getFormattedTime(rMin, rSec)
+                        counter.text = getFormattedTime(rMin, rSec)
+                        remainingMili -= 1000
+                    }
                     handler.postDelayed(this, 1000)
-                    remainingMili -= 1000
                 }
                 else
                 {
@@ -114,17 +118,24 @@ class TimerFragment : Fragment() {
             handler.removeCallbacks(runnable)
             remainingMili = 0
             counter.text = "00:00"
+            isPaused = false
         }
 
 
         startButton.setOnClickListener {
-            handler.removeCallbacks(runnable)
-            remainingMili = minuteInput.value * 60 * 1000 + secondInput.value * 1000
-            counter.text = getFormattedTime(minuteInput.value, secondInput.value)
-            handler.post(runnable)
+            if (isPaused) {
+                isPaused = false
+            } else {
+                handler.removeCallbacks(runnable)
+                remainingMili = minuteInput.value * 60 * 1000 + secondInput.value * 1000
+                counter.text = getFormattedTime(minuteInput.value, secondInput.value)
+                handler.post(runnable)
 
-            showCountdown()
+                showCountdown()
+            }
         }
+
+        pauseButton.setOnClickListener { isPaused = true }
 
         resetButton.setOnClickListener {
             resetTimer()
